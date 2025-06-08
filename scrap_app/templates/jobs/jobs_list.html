@@ -1,66 +1,31 @@
-{% extends 'jobs/base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Job Listings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+    <div class="max-w-4xl mx-auto p-6">
+        <h1 class="text-2xl font-bold mb-6">Latest Job Listings</h1>
 
-{% block title %}Scraped Job Listings{% endblock %}
-
-{% block content %}
-    <div class="stats">
-        <h3>Total Jobs: {{ jobs|length }}</h3>
-        <p>Latest scraping results from LinkedIn</p>
-        
-        <a href="http://localhost:8001/jobs" class="btn btn-success" target="_blank">
-            🔄 Scrape New Jobs
-        </a>
-        
-        <a href="/debug-jobs/" class="btn btn-danger" target="_blank">
-            🐛 Debug Jobs Data
-        </a>
-        
-        <a href="/admin/" class="btn btn-primary" target="_blank">
-            ⚙️ Django Admin
-        </a>
+        {% if jobs %}
+            <ul class="space-y-4">
+                {% for job in jobs %}
+                    <li class="bg-white shadow-sm p-4 rounded-lg hover:shadow-md transition">
+                        <a href="{{ job.link_to_apply }}" target="_blank" class="text-lg font-semibold text-blue-600 hover:underline">
+                            {{ job.job_title }}
+                        </a>
+                        <div class="text-sm text-gray-600">
+                            Location: {{ job.location }}<br>
+                            Posted: {{ job.created_at|date:"M d, Y H:i" }}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="text-gray-500">No job listings available.</p>
+        {% endif %}
     </div>
-
-    {% if jobs %}
-        {% for job in jobs %}
-            <div class="job-card">
-                <div class="job-title">
-                    {{ job.job_title }}
-                </div>
-                
-                <div class="job-location">
-                    📍 {{ job.location }}
-                </div>
-                
-                <!-- Debug info -->
-                <div class="debug-info">
-                    <strong>Link Debug Info:</strong><br>
-                    Length: {{ job.link_to_apply|length }} characters<br>
-                    Exists: {% if job.link_to_apply %}✅ Yes{% else %}❌ No{% endif %}<br>
-                    Starts with https: {% if job.link_to_apply|slice:":8" == "https://" %}✅ Yes{% else %}❌ No{% endif %}
-                </div>
-                
-                {% if job.link_to_apply %}
-                    <a href="{{ job.link_to_apply }}" class="job-link" target="_blank">
-                        Apply Now →
-                    </a>
-                    
-                    <!-- Show the actual link for debugging -->
-                    <a href="{{ job.link_to_apply }}" class="link-preview" target="_blank">
-                        {{ job.link_to_apply|truncatechars:100 }}
-                    </a>
-                {% else %}
-                    <span style="color: red; font-weight: bold;">❌ No link available</span>
-                {% endif %}
-                
-                <div class="job-date">
-                    Added: {{ job.created_at|date:"M d, Y H:i" }}
-                </div>
-            </div>
-        {% endfor %}
-    {% else %}
-        <div class="no-jobs">
-            <h3>No jobs found</h3>
-            <p>Click "Scrape New Jobs" to fetch the latest listings from LinkedIn!</p>
-        </div>
-    {% endif %}
-{% endblock %}
+</body>
+</html>
